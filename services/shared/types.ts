@@ -10,6 +10,7 @@ import { Client as TurboselfClient } from "turboself-api";
 import { Appscho } from "@/services/appscho";
 import type { MockData } from "@/services/mock";
 import { Pronote } from "@/services/pronote";
+import { Attachment } from "@/services/shared/attachment";
 import { Attendance } from "@/services/shared/attendance";
 import {
   Booking,
@@ -96,6 +97,7 @@ export interface SchoolServicePlugin {
   getCanteenQRCodes?: () => Promise<QRCode>;
   getCanteenBookingWeek?: (weekNumber: number) => Promise<BookingDay[]>;
   setMealAsBooked?: (meal: Booking, booked?: boolean) => Promise<Booking>;
+  downloadAttachment?: (attachment: Attachment) => Promise<string>;
 }
 
 /*
@@ -120,6 +122,7 @@ export enum Capabilities {
   CANTEEN_HISTORY,
   CANTEEN_BOOKINGS,
   CANTEEN_QRCODE,
+  ATTACHMENT_DOWNLOAD,
 }
 
 /**

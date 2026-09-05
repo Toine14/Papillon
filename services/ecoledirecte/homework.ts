@@ -1,6 +1,7 @@
 
 import { Client } from "@blockshub/blocksdirecte";
 
+import { Attachment, AttachmentType } from "../shared/attachment";
 import { Homework } from "../shared/homework";
 
 export async function fetchEDHomeworks(
@@ -22,8 +23,18 @@ export async function fetchEDHomeworks(
       if (!homework) {
         continue;
       }
+      const documents = [...homework.documents, ...homework.ressourceDocuments];
+      const attachments: Attachment[] = documents.map(doc => ({
+        type: AttachmentType.FILE,
+        name: doc.libelle,
+        url: doc.libelle,
+        remoteId: String(doc.id),
+        remoteType: doc.type,
+        createdByAccount: accountId
+      }));
+
       response.push({
-        attachments: [],
+        attachments,
         content: homework.contenu ?? "",
         isDone: homework.effectue ?? false,
         dueDate: date,

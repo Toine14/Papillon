@@ -3,12 +3,14 @@ import { Client } from "@blockshub/blocksdirecte";
 import { Auth, Services } from "@/stores/account/types";
 import { error } from "@/utils/logger/logger";
 
+import { Attachment } from "../shared/attachment";
 import { Attendance } from "../shared/attendance";
 import { Period, PeriodGrades } from "../shared/grade";
 import { Homework } from "../shared/homework";
 import { News } from "../shared/news";
 import { CourseDay } from "../shared/timetable";
 import { Capabilities, SchoolServicePlugin } from "../shared/types";
+import { downloadEDAttachment } from "./attachment";
 import { fetchEDAttendance, fetchEDAttendancePeriods } from "./attendance";
 import { fetchEDGradePeriods, fetchEDGrades } from "./grades";
 import { fetchEDHomeworks, setEDHomeworkAsDone } from "./homework";
@@ -26,7 +28,8 @@ export class EcoleDirecte implements SchoolServicePlugin {
     Capabilities.ATTENDANCE_PERIODS,
     Capabilities.GRADES,
     Capabilities.HOMEWORK,
-    Capabilities.TIMETABLE
+    Capabilities.TIMETABLE,
+    Capabilities.ATTACHMENT_DOWNLOAD
   ];
   session: Client | undefined;
   authData: Auth = {};
@@ -104,5 +107,13 @@ export class EcoleDirecte implements SchoolServicePlugin {
     }
 
     throw error("Session or account is not valid", "EcoleDirecte.setHomeworkCompletion");
+  }
+
+  async downloadAttachment(attachment: Attachment): Promise<string> {
+    if (this.session && attachment.remoteId && attachment.remoteType) {
+      return downloadEDAttachment(this.session, attachment.remoteId, attachment.remoteType, attachment.name);
+    }
+
+    return attachment.url;
   }
 }

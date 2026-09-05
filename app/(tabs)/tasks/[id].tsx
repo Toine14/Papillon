@@ -17,7 +17,7 @@ import { getAttachmentIcon } from "@/utils/news/getAttachmentIcon";
 import { getSubjectColor } from "@/utils/subjects/colors";
 import { getSubjectEmoji } from "@/utils/subjects/emoji";
 import { getSubjectName } from "@/utils/subjects/name";
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import List from "@/ui/new/List";
 import Typography from "@/ui/new/Typography";
@@ -168,9 +168,17 @@ const Task = () => {
             </List.SectionTitle>
 
             {task.attachments.map((attachment) => (
-              <List.Item onPress={() => WebBrowser.openBrowserAsync(attachment.url, {
-                presentationStyle: "formSheet"
-              })}>
+              <List.Item onPress={async () => {
+                const manager = getManager();
+                const url = await manager?.downloadAttachment(attachment) ?? attachment.url;
+                if (url.startsWith("file://")) {
+                  Linking.openURL(url);
+                } else {
+                  WebBrowser.openBrowserAsync(url, {
+                    presentationStyle: "formSheet"
+                  });
+                }
+              }}>
                 <List.Leading>
                   <Icon>
                     <Papicons name={getAttachmentIcon(attachment)} />

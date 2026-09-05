@@ -38,6 +38,7 @@ import {
   addCourseDayToDatabase,
   getCoursesFromCache,
 } from "@/database/useTimetable";
+import { Attachment } from "@/services/shared/attachment";
 import { Attendance } from "@/services/shared/attendance";
 import {
   Booking,
@@ -407,6 +408,17 @@ export class AccountManager {
           ? await client.setHomeworkCompletion(homework, state)
           : homework,
       { multiple: false, clientId: homework.createdByAccount }
+    );
+  }
+
+  async downloadAttachment(attachment: Attachment): Promise<string> {
+    return await this.fetchData(
+      Capabilities.ATTACHMENT_DOWNLOAD,
+      async client =>
+        client.downloadAttachment
+          ? await client.downloadAttachment(attachment)
+          : attachment.url,
+      { multiple: false, clientId: attachment.createdByAccount }
     );
   }
 
