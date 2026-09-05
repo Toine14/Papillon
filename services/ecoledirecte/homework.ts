@@ -17,12 +17,17 @@ export async function fetchEDHomeworks(
 
     for (const subject of matieres) {
       const homework = subject.aFaire
+      // matieres lists every subject scheduled that day, not just ones with
+      // homework — aFaire is only present when there actually is a devoir.
+      if (!homework) {
+        continue;
+      }
       response.push({
         attachments: [],
-        content: homework?.contenu ?? "",
-        isDone: homework?.effectue ?? false,
+        content: homework.contenu ?? "",
+        isDone: homework.effectue ?? false,
         dueDate: date,
-        id: String(homework?.idDevoir),
+        id: String(homework.idDevoir),
         subject: subject.matiere.length > 0 ? subject.matiere : subject.entityLibelle,
         evaluation: false,
         custom: false,
