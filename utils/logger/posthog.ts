@@ -11,7 +11,9 @@ try {
 const API_KEY = secrets.POSTHOG_API_KEY;
 const HOST = secrets.POSTHOG_HOST || "https://posthog.papillon.bzh";
 
-export const posthog = new PostHog(API_KEY, {
-  host: HOST,
-  defaultOptIn: false,
-});
+export const posthog = API_KEY
+  ? new PostHog(API_KEY, {
+    host: HOST,
+    defaultOptIn: false,
+  })
+  : (new Proxy({}, { get: () => () => {} }) as unknown as PostHog);
