@@ -52,6 +52,7 @@ android/*
 
 bun.lock
 yarn.lock
+package-lock.json
 
 secrets.json
 .vscode/
@@ -60,3 +61,5 @@ secrets.json
 .claude/
 .codex/
 graphify-out/
+
+ARCHITECTURE.md
