@@ -120,8 +120,17 @@ export async function addHomeworkToDatabase(homeworks: SharedHomework[]) {
       !homeworkIds.includes(dbHomework.homeworkId)
   );
 
-  for (const homework of homeworksToDelete) {
-    await homework.markAsDeleted();
+  if (homeworksToDelete.length > 0) {
+    await safeWrite(
+      db,
+      async () => {
+        for (const homework of homeworksToDelete) {
+          await homework.markAsDeleted();
+        }
+      },
+      10000,
+      "deleteStaleHomeworks"
+    );
   }
 
   for (const hw of homeworks) {
