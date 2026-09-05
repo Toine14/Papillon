@@ -5,8 +5,10 @@ import React from "react";
 import { Alert, Image, ScrollView } from "react-native";
 
 import { removeBalanceFromDatabase } from "@/database/useBalance";
+import { parseEDAccounts } from "@/services/ecoledirecte/types";
 import { getManager } from "@/services/shared";
 import { useAccountStore } from "@/stores/account";
+import { Services } from "@/stores/account/types";
 import Avatar from "@/ui/components/Avatar";
 import Icon from "@/ui/components/Icon";
 import Stack from "@/ui/components/Stack";
@@ -182,6 +184,10 @@ export default function AccountsView() {
             <List.Trailing>
               <ActionMenu
                 actions={[
+                  ...(service.serviceId === Services.ECOLEDIRECTE &&
+                  parseEDAccounts(service.auth.additionals?.["availableAccounts"]).length > 1
+                    ? [{ id: "switch-child", title: "Changer d'enfant" }]
+                    : []),
                   {
                     id: "delete",
                     title: "Supprimer",
@@ -189,6 +195,12 @@ export default function AccountsView() {
                   },
                 ]}
                 onPressAction={(event: NativeActionEvent) => {
+                  if (event.nativeEvent.event === "switch-child") {
+                    router.push({
+                      pathname: "/(settings)/switch-child",
+                      params: { serviceId: service.id },
+                    });
+                  }
                   if (event.nativeEvent.event === "delete") {
                     askDeleteService(
                       service.id,

@@ -47,6 +47,13 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
+          name="switch-child"
+          options={{
+            headerTitle: t("Settings_SwitchChild_Title"),
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
           name="personalization"
           options={{
             headerTitle: t("Settings_Personalization_Title"),
