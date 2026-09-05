@@ -129,6 +129,7 @@
   "ONBOARDING_UNKNOWN_STUDENT": "Étudiant",
   "ONBOARDING_DEFAULT_USER_FIRSTNAME": "Utilisateur",
   "ONBOARDING_DOUBLE_AUTH": "Double authentification",
+  "ONBOARDING_ED_SELECT_CHILD_TITLE": "Sélectionne l'enfant à consulter",
   "ONBOARDING_OTHER_UNIVERSITIES": "Autres universités",
   "ONBOARDING_SERVICE_PRONOTE": "PRONOTE",
   "ONBOARDING_SERVICE_ED": "ÉcoleDirecte",

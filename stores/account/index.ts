@@ -97,7 +97,7 @@ export const useAccountStore = create<AccountsStorage>()(
             return account;
           }),
         }),
-      setAccountName: (accountId, firstName, lastName) =>
+      setAccountName: (accountId, firstName, lastName, className, schoolName) =>
         set({
           accounts: get().accounts.map(account => {
             if (account.id === accountId) {
@@ -105,6 +105,8 @@ export const useAccountStore = create<AccountsStorage>()(
                 ...account,
                 firstName,
                 lastName,
+                ...(className !== undefined ? { className } : {}),
+                ...(schoolName !== undefined ? { schoolName } : {}),
               };
             }
             return account;

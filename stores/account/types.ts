@@ -20,7 +20,9 @@ export interface AccountsStorage {
   setAccountName: (
     accountId: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    className?: string,
+    schoolName?: string
   ) => void;
   setSubjectColor: (subject: string, color: string) => void;
   setSubjectEmoji: (subject: string, emoji: string) => void;

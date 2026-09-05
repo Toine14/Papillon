@@ -56,7 +56,7 @@ export function GetSupportedServices(redirect: (path: { pathname: string, option
       name: "ed",
       route: "ed",
       title: t("ONBOARDING_SERVICE_ED"),
-      type: ["school"],
+      type: ["school", "parents"],
       image: require("@/assets/images/service_ed.png"),
       onPress: () => {
         redirect({ pathname: './ecoledirecte/credentials', options: { service: Services.ECOLEDIRECTE } });
@@ -68,7 +68,7 @@ export function GetSupportedServices(redirect: (path: { pathname: string, option
       name: "skolengo",
       route: "skolengo",
       title: t("ONBOARDING_SERVICE_SKOLENGO"),
-      type: ["school"],
+      type: ["school", "parents"],
       image: require("@/assets/images/service_skolengo.png"),
       onPress: () => {
         redirect({ pathname: './school/method', options: { service: Services.SKOLENGO } });

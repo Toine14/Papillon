@@ -64,7 +64,7 @@ export default function ServiceSelection() {
     router.push(newRoute);
   };
 
-  if (!["school", "univ"].includes(type)) {
+  if (!["school", "univ", "parents"].includes(type)) {
     return (
       <ScrollView
         contentContainerStyle={{
