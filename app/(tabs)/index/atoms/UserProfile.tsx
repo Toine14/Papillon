@@ -9,6 +9,8 @@ import { Pressable } from 'react-native';
 
 import { initializeAccountManager } from '@/services/shared';
 import { useAccountStore } from '@/stores/account';
+import { Services } from '@/stores/account/types';
+import { useParentViewStore } from '@/stores/parentView';
 import { useSettingsStore } from '@/stores/settings';
 import Avatar from '@/ui/components/Avatar';
 import Stack from '@/ui/components/Stack';
@@ -26,6 +28,12 @@ const UserProfile = ({ subtitle, onPress }: { subtitle?: string, onPress?: () =>
   const accounts = useAccountStore((state) => state.accounts);
   const lastUsedAccount = useAccountStore((state) => state.lastUsedAccount);
   const theme = useTheme();
+
+  const account = accounts.find(a => a.id === lastUsedAccount);
+  const edService = account?.services.find(s => s.serviceId === Services.ECOLEDIRECTE);
+  const edTypeCompte = edService?.auth.additionals?.["typeCompte"];
+  const isParentAccount = edTypeCompte === "1" || edTypeCompte === "2";
+  const exitToFamilyDashboard = useParentViewStore(state => state.exitToFamilyDashboard);
 
   const AccountsMenuItems = (accounts && accounts.length > 0) && accounts.map((account) => ({
     id: account.id,
@@ -65,6 +73,21 @@ const UserProfile = ({ subtitle, onPress }: { subtitle?: string, onPress?: () =>
           </UserProfileItemContainer>
 
         <UserProfileItemContainer>
+          {isParentAccount ? (
+            <Pressable onPress={exitToFamilyDashboard}>
+              <Stack direction="vertical" vAlign="center" gap={0} style={{ height: 42, paddingHorizontal: 12 }}>
+                <Stack direction="horizontal" hAlign="center" gap={6}>
+                  <Typography nowrap color='white' variant='navigation' weight='bold' style={{ maxWidth: Dimensions.get('window').width - 230 }}>
+                    Changer d'enfant
+                  </Typography>
+                  <Papicons name="chevrondown" size={20} color="white" opacity={0.5} style={{ marginRight: 0 }} />
+                </Stack>
+                <Typography nowrap color='white' variant='body1' style={{ opacity: 0.7 }}>
+                  {firstName} {lastName}
+                </Typography>
+              </Stack>
+            </Pressable>
+          ) : (
           <ActionMenu
             onPressAction={async ({ nativeEvent }) => {
               if (nativeEvent.event === "edit") {
@@ -128,6 +151,7 @@ const UserProfile = ({ subtitle, onPress }: { subtitle?: string, onPress?: () =>
               }
             </Stack>
           </ActionMenu>
+          )}
         </UserProfileItemContainer>
       </Stack>
     </Stack>

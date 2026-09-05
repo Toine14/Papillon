@@ -6,13 +6,17 @@ import React from 'react';
 import { FlatList, Platform, StatusBar, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { parseEDAccounts } from '@/services/ecoledirecte/types';
 import { useAccountStore } from '@/stores/account';
+import { Services } from '@/stores/account/types';
+import { useParentViewStore } from '@/stores/parentView';
 import { useSettingsStore } from '@/stores/settings';
 import { checkConsent } from '@/utils/logger/consent';
 
 import HomeHeader from './atoms/HomeHeader';
 import HomeTopBar from './atoms/HomeTopBar';
 import Wallpaper from './atoms/Wallpaper';
+import ParentDashboard from './components/ParentDashboard';
 import HomeWidget, { HomeWidgetItem } from './components/HomeWidget';
 import { useHomeData } from './hooks/useHomeData';
 import { useTimetableWidgetData } from './hooks/useTimetableWidgetData';
@@ -91,6 +95,24 @@ const HomeScreen = () => {
     mutateSettings("personalization", { welcomeModalSeen: true });
     router.navigate("/(modals)/welcome");
   }, [account, mutateSettings, router, welcomeModalSeen]);
+
+  const edService = account?.services.find(s => s.serviceId === Services.ECOLEDIRECTE);
+  const edTypeCompte = edService?.auth.additionals?.["typeCompte"];
+  const isParentAccount = edTypeCompte === "1" || edTypeCompte === "2";
+  const enteredChildId = useParentViewStore(state => state.enteredChildId);
+
+  if (isParentAccount && !enteredChildId && account && edService) {
+    return (
+      <>
+        <Wallpaper />
+        <ParentDashboard
+          account={account}
+          service={edService}
+          identities={parseEDAccounts(edService.auth.additionals?.["availableAccounts"])}
+        />
+      </>
+    );
+  }
 
   return (
     <>
