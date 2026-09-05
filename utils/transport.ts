@@ -22,17 +22,21 @@ export const initializeTransport = async (address: string | undefined): Promise<
   const permission = await Location.requestForegroundPermissionsAsync();
   let schoolAddress: TransportAddress | undefined = undefined;
 
-  if (address !== undefined && address !== null && permission.granted) {
-    const geocodes = await Location.geocodeAsync(address);
-    if (geocodes.length > 0) {
-      const geocode = geocodes[0];
-      schoolAddress = {
-        firstTitle: address,
-        secondTitle: "",
-        address,
-        longitude: geocode.longitude,
-        latitude: geocode.latitude
-      };
+  if (address !== undefined && address !== null && address.trim().length > 0 && permission.granted) {
+    try {
+      const geocodes = await Location.geocodeAsync(address);
+      if (geocodes.length > 0) {
+        const geocode = geocodes[0];
+        schoolAddress = {
+          firstTitle: address,
+          secondTitle: "",
+          address,
+          longitude: geocode.longitude,
+          latitude: geocode.latitude
+        };
+      }
+    } catch (error) {
+      log(`Failed to geocode school address "${address}": ${error}`);
     }
   }
 
