@@ -1,7 +1,7 @@
 import { Database, Model, Q } from "@nozbe/watermelondb";
 import React, { createContext, useContext } from 'react';
 
-import { error, info } from "@/utils/logger/logger";
+import { error, info, warn } from "@/utils/logger/logger";
 
 import { database } from './index';
 import { Absence, Attendance, Delay, Observation, Punishment } from "./models/Attendance";
@@ -31,7 +31,16 @@ export async function ClearDatabaseForAccount(accountId: string) {
   const db = getDatabaseInstance();
   const destroy = async (records: Model[]) => {
     for (const record of records) {
-      await record.destroyPermanently();
+      try {
+        await record.destroyPermanently();
+      } catch (err) {
+        // A concurrent sync (e.g. a background refresh writing fresh rows for
+        // the same account right as we're clearing it) can replace a record
+        // between our fetch() and this destroy() — WatermelonDB then reports
+        // it as no longer cached. That row is already gone from our target
+        // state either way, so skip it instead of aborting the whole clear.
+        warn(`ClearDatabaseForAccount: skipped a record already gone: ${String(err)}`);
+      }
     }
   };
   const tablesWithAccount = [
@@ -54,28 +63,39 @@ export async function ClearDatabaseForAccount(accountId: string) {
       .query(Q.where("createdByAccount", accountId))
       .fetch();
     for (const attendance of attendanceRecords) {
-      await destroy([
-        ...(await attendance.delays.fetch()),
-        ...(await attendance.absences.fetch()),
-        ...(await attendance.observations.fetch()),
-        ...(await attendance.punishments.fetch()),
-      ]);
+      try {
+        await destroy([
+          ...(await attendance.delays.fetch()),
+          ...(await attendance.absences.fetch()),
+          ...(await attendance.observations.fetch()),
+          ...(await attendance.punishments.fetch()),
+        ]);
+      } catch (err) {
+        // Same concurrent-sync race as in destroy() above, but here it hit a
+        // fetch() on a relation of a record a concurrent writer already moved
+        // past — skip this attendance's sub-records rather than abort everything.
+        warn(`ClearDatabaseForAccount: skipped attendance sub-records already gone: ${String(err)}`);
+      }
     }
 
     const periodGradeRecords = await db.get<PeriodGrades>("periodgrades")
       .query(Q.where("createdByAccount", accountId))
       .fetch();
     for (const periodGrade of periodGradeRecords) {
-      const subjects = await db.get<Subject>("subjects")
-        .query(Q.where("periodGradeId", periodGrade.id))
-        .fetch();
-      for (const subject of subjects) {
-        const grades = await db.get<Grade>("grades")
-          .query(Q.where("subjectId", subject.id))
+      try {
+        const subjects = await db.get<Subject>("subjects")
+          .query(Q.where("periodGradeId", periodGrade.id))
           .fetch();
-        await destroy(grades);
+        for (const subject of subjects) {
+          const grades = await db.get<Grade>("grades")
+            .query(Q.where("subjectId", subject.id))
+            .fetch();
+          await destroy(grades);
+        }
+        await destroy(subjects);
+      } catch (err) {
+        warn(`ClearDatabaseForAccount: skipped periodgrade sub-records already gone: ${String(err)}`);
       }
-      await destroy(subjects);
     }
 
     for (const table of tablesWithAccount) {
